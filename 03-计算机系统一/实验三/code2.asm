@@ -1,0 +1,98 @@
+.ORIG x3000
+
+AND R0, R0, #0
+AND R1, R1, #0
+AND R2, R2, #0
+AND R3, R3, #0
+AND R4, R4, #0
+AND R5, R5, #0
+AND R6, R6, #0
+AND R7, R7, #0
+
+LD R1, SOURCE_ADDR
+LD R2, DEST_ADDR
+LD R3, NUM_16
+
+COPY_LOOP
+    LDR R4, R1, #0
+    STR R4, R2, #0
+    ADD R1, R1, #1
+    ADD R2, R2, #1
+    ADD R3, R3, #-1
+    BRp COPY_LOOP
+
+LD R1, NUM_16
+
+SORT_OUTER_LOOP
+    ADD R1, R1, #-1
+    BRz CALC_GRADES
+
+    LD R2, DEST_ADDR
+    ADD R3, R1, #0
+
+SORT_INNER_LOOP
+    ADD R4, R2, #1
+    LDR R5, R2, #0
+    LDR R6, R4, #0
+
+    NOT R7, R5
+    ADD R7, R7, R6
+    BRzp NOSWAP
+    STR R6, R2, #0
+    STR R5, R4, #0
+
+NOSWAP
+    ADD R2, R2, #1
+    ADD R3, R3, #-1
+    BRp SORT_INNER_LOOP
+
+    BRnzp SORT_OUTER_LOOP
+
+CALC_GRADES
+LD R0, DEST_END_ADDR
+AND R4, R4, #0
+AND R5, R5, #0
+AND R6, R6, #0
+AND R7, R7, #0
+
+LD R1, NUM_16
+
+GRADE_LOOP
+    LDR R2, R0, #0
+    ADD R0, R0, #-1
+    ADD R6, R6, #1
+
+    LD R3, A_THRESH
+    NOT R3, R3
+    ADD R3, R3, #1
+    ADD R3, R3, R2
+    BRn CHECK_B
+    ADD R7, R6, #-5
+    BRp CHECK_B
+
+    ADD R4, R4, #1
+    BRnzp GRADE_NEXT
+
+CHECK_B
+    LD R3, B_THRESH
+    NOT R3, R3
+    ADD R3, R3, #1
+    ADD R3, R3, R2
+    BRn GRADE_NEXT
+    ADD R7, R6, #-9
+    BRp GRADE_NEXT
+
+    ADD R5, R5, #1
+
+GRADE_NEXT
+    ADD R1, R1, #-1
+    BRp GRADE_LOOP
+
+AND R6, R6, #0
+AND R7, R7, #0
+LD R6, A_COUNT
+LD R7, B_COUNT
+STR R4, R6, #0
+STR R5, R7, #0
+HALT
+.END

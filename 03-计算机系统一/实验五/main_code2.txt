@@ -1,0 +1,72 @@
+.ORIG x3000
+
+; ----------------------------------------
+; initialize the stack pointer
+; ----------------------------------------
+        LD  R6, STACK
+
+; ----------------------------------------
+; set up keyboard interrupt vector table entry
+; keyboard interrupt vector = x80
+; vector table address = x0100 + x80 = x0180
+; M[x0180] <- x2000
+; ----------------------------------------
+        LD  R1, ENTRY1
+        LD  R2, STARTS
+        STR R2, R1, #0
+
+; ----------------------------------------
+; enable keyboard interrupts
+; set KBSR[14] = 1
+; ----------------------------------------
+        LD  R3, IE
+        STI R3, KBSR
+
+; ----------------------------------------
+; start of actual user program:
+; continuously print ICS checkerboard
+; ----------------------------------------
+AGAIN   LEA R0, STR1
+        PUTS
+        JSR DELAY
+
+        LEA R0, STR2
+        PUTS
+        JSR DELAY
+
+        BRnzp AGAIN
+
+
+; ----------------------------------------
+; data for interrupt initialization
+; ----------------------------------------
+ENTRY1  .FILL x0180
+STARTS  .FILL x2000
+STACK   .FILL x3000
+IE      .FILL x4000
+KBSR    .FILL xFE00
+
+
+; ----------------------------------------
+; checkerboard strings
+; ----------------------------------------
+STR1    .STRINGZ "ICS ICS ICS ICS ICS ICS \n"
+STR2    .STRINGZ "  ICS ICS ICS ICS ICS ICS \n"
+
+
+; ----------------------------------------
+; delay subroutine
+; ----------------------------------------
+DELAY   ST  R1, SaveR1
+        LD  R1, COUNT
+
+REP     ADD R1, R1, #-1
+        BRp REP
+
+        LD  R1, SaveR1
+        RET
+
+COUNT   .FILL #25000
+SaveR1  .BLKW 1
+
+.END
