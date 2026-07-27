@@ -1,0 +1,13 @@
+# Office temporary files
+~$*
+
+# Temporary files
+*.tmp
+
+# Windows files
+Thumbs.db
+desktop.ini
+
+# Python cache
+__pycache__/
+*.pyc
